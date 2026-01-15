@@ -65,6 +65,18 @@ body {
     /* Prevent body scroll */
 }
 
+/* Global Scrollbar Hide */
+html {
+    scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#app::-webkit-scrollbar,
+.main-container::-webkit-scrollbar {
+    display: none;
+}
+
 /* Header & Balance Card */
 .header {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -166,6 +178,10 @@ body {
     top: 0;
     z-index: 40;
     pointer-events: none;
+    /* Fix overlap transparency */
+    background: var(--bg-app);
+    width: 100%;
+    padding-top: 1.5rem;
 }
 
 .tab-btn {
