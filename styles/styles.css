@@ -654,3 +654,27 @@ select {
         font-size: 0.95rem;
     }
 }
+
+/* --- DESKTOP RESPONSIVE LAYOUT --- */
+@media (min-width: 768px) {
+
+    /* Center content but keep background full width */
+    .header-content,
+    .balance-card,
+    .tabs,
+    .view,
+    .modal-content {
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Improve button visibility on desktop */
+    .header-actions {
+        gap: 1rem;
+    }
+
+    .transaction-item {
+        padding: 1.2rem;
+    }
+}
