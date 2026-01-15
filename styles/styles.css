@@ -563,8 +563,76 @@ select {
 }
 
 .small-btn {
-    width: 32px;
     height: 32px;
     background: var(--primary);
     font-size: 1rem;
+}
+
+/* --- RESPONSIVE HEADER MENU --- */
+
+.header-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.menu-toggle {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .menu-toggle {
+        display: grid;
+    }
+
+    .header-actions {
+        display: none;
+        position: absolute;
+        top: 80px;
+        right: 1.5rem;
+        background: var(--bg-card);
+        padding: 0.5rem;
+        border-radius: var(--radius-md);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+        flex-direction: column;
+        z-index: 1000;
+        min-width: 200px;
+        border: 1px solid var(--border);
+        animation: fadeIn 0.2s ease;
+    }
+
+    .header-actions.show {
+        display: flex;
+    }
+
+    .header-actions .icon-btn {
+        width: 100%;
+        height: auto;
+        padding: 0.8rem;
+        border-radius: 0.5rem;
+        background: transparent;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        justify-content: flex-start;
+        font-size: 1rem;
+        margin: 0 !important; /* Reset margins */
+    }
+
+    .header-actions .icon-btn:hover {
+        background: var(--bg-app);
+    }
+
+    .header-actions .icon-btn i {
+        font-size: 1.2rem;
+        color: var(--primary);
+    }
+
+    /* Add labels automatically from aria-label */
+    .header-actions .icon-btn::after {
+        content: attr(aria-label);
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
 }

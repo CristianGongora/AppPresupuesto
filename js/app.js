@@ -793,6 +793,24 @@ const initApp = () => {
         importFile.addEventListener('change', importData);
     }
 
+    // Menu Toggle Logic
+    const menuToggle = document.getElementById('menu-toggle');
+    const headerActions = document.getElementById('header-actions');
+
+    if (menuToggle && headerActions) {
+        menuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            headerActions.classList.toggle('show');
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (headerActions.classList.contains('show') && !headerActions.contains(e.target)) {
+                headerActions.classList.remove('show');
+            }
+        });
+    }
+
     // Modal
     const fab = document.getElementById('fab-add');
     const closeBtn = document.getElementById('close-modal');

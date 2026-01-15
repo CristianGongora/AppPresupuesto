@@ -24,21 +24,25 @@
             <div class="header-content">
                 <h1>Mis Finanzas</h1>
                 <div style="flex: 1"></div>
-                <button id="backup-btn" class="icon-btn" aria-label="Guardar Copia (Backup)"
-                    style="margin-right: 0.5rem;">
-                    <i class="ri-download-cloud-2-line"></i>
+                <button id="menu-toggle" class="icon-btn menu-toggle" aria-label="Menú">
+                    <i class="ri-more-2-fill"></i>
                 </button>
-                <input type="file" id="import-file" style="display: none" accept=".json">
-                <button id="restore-btn" class="icon-btn" aria-label="Restaurar Copia" style="margin-right: 0.5rem;">
-                    <i class="ri-upload-cloud-2-line"></i>
-                </button>
-                <button id="report-btn" class="icon-btn" aria-label="Ver reporte mes anterior"
-                    style="margin-right: 0.5rem;">
-                    <i class="ri-bar-chart-box-line"></i>
-                </button>
-                <button id="theme-toggle" class="icon-btn" aria-label="Cambiar tema">
-                    <i class="ri-moon-line"></i>
-                </button>
+
+                <div id="header-actions" class="header-actions">
+                    <button id="backup-btn" class="icon-btn" aria-label="Guardar Copia">
+                        <i class="ri-download-cloud-2-line"></i>
+                    </button>
+                    <input type="file" id="import-file" style="display: none" accept=".json">
+                    <button id="restore-btn" class="icon-btn" aria-label="Restaurar Copia">
+                        <i class="ri-upload-cloud-2-line"></i>
+                    </button>
+                    <button id="report-btn" class="icon-btn" aria-label="Reportes">
+                        <i class="ri-bar-chart-box-line"></i>
+                    </button>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Tema">
+                        <i class="ri-moon-line"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="balance-card">
