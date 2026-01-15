@@ -25,19 +25,33 @@ function saveData() {
 let editingId = null;
 
 // Actions
-const getTransactions = () => {
-    return [...state.transactions].sort((a, b) => b.id - a.id); // Orden descendente por ID (fecha)
+const getAllTransactions = () => {
+    return [...state.transactions].sort((a, b) => b.id - a.id);
+};
+
+// Por defecto devuelve solo el mes actual
+const getTransactions = (monthOffset = 0) => {
+    const now = new Date();
+    // Ajustar mes basado en offset (0 = actual, -1 = anterior, etc)
+    const targetDate = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+
+    return state.transactions.filter(t => {
+        const tDate = new Date(t.date);
+        return tDate.getMonth() === targetDate.getMonth() &&
+            tDate.getFullYear() === targetDate.getFullYear();
+    }).sort((a, b) => b.id - a.id);
 };
 
 const getTransactionById = (id) => {
     return state.transactions.find(t => t.id === id);
 };
 
+// Mantenemos esta para las gráficas que ya tienen su lógica de filtrado interno
 const getTransactionsByFilter = (range) => {
     const now = new Date();
-    const transactions = getTransactions();
+    // Para filtros globales usamos todas las transacciones
+    const transactions = getAllTransactions();
 
-    // Normalizar inicio del día
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     return transactions.filter(t => {
@@ -76,7 +90,6 @@ const addTransaction = (transaction) => {
 const updateTransaction = (id, updatedData) => {
     const index = state.transactions.findIndex(t => t.id === id);
     if (index !== -1) {
-        // Mantenemos el ID y la fecha original, solo actualizamos los datos editables
         state.transactions[index] = {
             ...state.transactions[index],
             ...updatedData
@@ -90,15 +103,15 @@ const deleteTransaction = (id) => {
     saveData();
 };
 
-const getBalance = () => {
-    return state.transactions.reduce((acc, curr) => {
+const getBalance = (transactions) => {
+    return transactions.reduce((acc, curr) => {
         if (curr.type === 'income') return acc + parseFloat(curr.amount);
         return acc - parseFloat(curr.amount);
     }, 0);
 };
 
-const getTotals = () => {
-    return state.transactions.reduce((acc, curr) => {
+const getTotals = (transactions) => {
+    return transactions.reduce((acc, curr) => {
         const amount = parseFloat(curr.amount);
         if (curr.type === 'income') {
             acc.income += amount;
@@ -109,6 +122,84 @@ const getTotals = () => {
     }, { income: 0, expense: 0 });
 };
 
+// --- REPORTING MODULE ---
+const generatePreviousMonthReport = () => {
+    const prevMonthTransactions = getTransactions(-1);
+    const totals = getTotals(prevMonthTransactions);
+    const balance = totals.income - totals.expense;
+
+    const now = new Date();
+    const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const monthName = prevMonthDate.toLocaleString('es-CO', { month: 'long', year: 'numeric' });
+
+    // Calcular categoría de mayor gasto
+    const expenses = prevMonthTransactions.filter(t => t.type === 'expense');
+    const expenseByCategory = expenses.reduce((acc, curr) => {
+        acc[curr.category] = (acc[curr.category] || 0) + parseFloat(curr.amount);
+        return acc;
+    }, {});
+
+    const topCategoryEntry = Object.entries(expenseByCategory).sort(([, a], [, b]) => b - a)[0];
+    const topCategory = topCategoryEntry ? getCategoryName(topCategoryEntry[0]) : 'Ninguna';
+
+    // Mensaje personalizado
+    let advice = "";
+    if (balance > 0) {
+        advice = "¡Excelente! Lograste un superávit. Considera invertir ese excedente.";
+    } else if (balance < 0) {
+        advice = "Cuidado, gastaste más de lo que ingresaste. Revisa tus gastos hormiga.";
+    } else {
+        advice = "Equilibrio total. Ni ganancia ni pérdida.";
+    }
+
+    // Si no hubo movimientos
+    if (prevMonthTransactions.length === 0) {
+        Swal.fire({
+            title: `Reporte de ${monthName}`,
+            text: "No registraste movimientos el mes pasado.",
+            icon: 'info',
+            background: document.body.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
+            color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b'
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: `<span style="font-size: 1.2rem">Reporte Mensual</span><br><small style="opacity:0.7">${monthName}</small>`,
+        html: `
+            <div style="text-align: left; margin-top: 1rem;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem">
+                    <span>Ingresos:</span>
+                    <span style="color:#10b981">${formatCurrency(totals.income)}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem">
+                    <span>Gastos:</span>
+                    <span style="color:#ef4444">${formatCurrency(totals.expense)}</span>
+                </div>
+                <hr style="border-color:var(--border); margin: 0.5rem 0">
+                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.1rem">
+                    <span>Balance:</span>
+                    <span style="${balance >= 0 ? 'color:#10b981' : 'color:#ef4444'}">${formatCurrency(balance)}</span>
+                </div>
+                
+                <div style="margin-top: 1.5rem; background: var(--bg-hover); padding: 1rem; border-radius: 8px;">
+                    <p style="margin-bottom: 0.5rem; font-size: 0.9rem; opacity: 0.8">Mayor gasto en:</p>
+                    <strong style="font-size: 1rem"><i class="ri-price-tag-3-fill"></i> ${topCategory}</strong>
+                </div>
+
+                <p style="margin-top: 1rem; font-style: italic; font-size: 0.95rem; text-align: center">"${advice}"</p>
+            </div>
+        `,
+        icon: balance >= 0 ? 'success' : 'warning',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#3b82f6',
+        background: document.body.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
+        color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b',
+        customClass: {
+            popup: 'report-popup'
+        }
+    });
+};
 
 // --- CHARTS MODULE ---
 let expenseChart = null;
@@ -294,7 +385,8 @@ const suggestionsData = {
 };
 
 const generateSuggestions = () => {
-    const transactions = getTransactions();
+    // Sugerencias basadas en el mes actual
+    const transactions = getTransactions(0);
     const expenses = transactions.filter(t => t.type === 'expense');
     const container = document.getElementById('suggestions-container');
     container.innerHTML = '';
@@ -303,7 +395,7 @@ const generateSuggestions = () => {
         container.innerHTML = `
             <div class="empty-state">
                 <i class="ri-lightbulb-line"></i>
-                <p>Agrega gastos para recibir consejos inteligentes.</p>
+                <p>Agrega gastos este mes para recibir consejos inteligentes.</p>
             </div>
         `;
         return;
@@ -330,7 +422,7 @@ const generateSuggestions = () => {
         <h4 style="margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
             <i class="ri-alert-line"></i> Atención en ${getCategoryName(topCategory)}
         </h4>
-        <p>El <strong>${percentage}%</strong> de tus gastos mensuales se van en esta categoría.</p>
+        <p>El <strong>${percentage}%</strong> de tus gastos del mes se van en esta categoría.</p>
         <hr style="margin: 0.5rem 0; border: 0; border-top: 1px solid var(--border);">
         <p>💡 ${suggestionsData[topCategory] || suggestionsData.other}</p>
     `;
@@ -400,25 +492,28 @@ function formatCurrency(amount) {
 }
 
 const renderUI = () => {
-    const balance = getBalance();
-    const totals = getTotals();
+    // 1. Obtener transacciones SOLAMENTE del mes actual para la vista principal
+    const currentMonthTransactions = getTransactions(0);
+
+    // 2. Calcular balance basado en estas transacciones filtradas
+    const balance = getBalance(currentMonthTransactions);
+    const totals = getTotals(currentMonthTransactions);
 
     balanceEl.textContent = formatCurrency(balance);
     incomeEl.textContent = `+${formatCurrency(totals.income)}`;
     expenseEl.textContent = `-${formatCurrency(totals.expense)}`;
 
-    const transactions = getTransactions();
     transactionsListEl.innerHTML = '';
 
-    if (transactions.length === 0) {
+    if (currentMonthTransactions.length === 0) {
         transactionsListEl.innerHTML = `
             <div class="empty-state">
-                <i class="ri-file-list-3-line"></i>
-                <p>No tienes movimientos registrados.</p>
+                <i class="ri-calendar-check-line"></i>
+                <p>No hay movimientos este mes.</p>
             </div>
         `;
     } else {
-        transactions.forEach(t => {
+        currentMonthTransactions.forEach(t => {
             const el = document.createElement('div');
             el.className = 'transaction-item';
             const isIncome = t.type === 'income';
@@ -506,6 +601,12 @@ const initApp = () => {
         updateCharts();
     });
 
+    // Report Button
+    const reportBtn = document.getElementById('report-btn');
+    if (reportBtn) {
+        reportBtn.addEventListener('click', generatePreviousMonthReport);
+    }
+
     // Modal
     const fab = document.getElementById('fab-add');
     const closeBtn = document.getElementById('close-modal');
@@ -545,7 +646,10 @@ const initApp = () => {
                 confirmButtonText: 'Sí, eliminar',
                 cancelButtonText: 'Cancelar',
                 background: document.body.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
-                color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b'
+                color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b',
+                customClass: {
+                    popup: 'swal2-dark-mode-popup'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     deleteTransaction(id);
