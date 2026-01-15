@@ -789,24 +789,6 @@ const initApp = () => {
         renderUI();
     });
 
-    // --- DATA SEEDING FOR DEMO ---
-    const seedKey = 'demo_seed_v2';
-    if (!localStorage.getItem(seedKey)) {
-        const now = new Date();
-        const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 15); // 15th of prev month
-
-        addTransaction({
-            type: 'expense',
-            amount: 45000,
-            category: 'food',
-            description: 'Cena Demo (Mes Pasado)',
-            date: prevMonthDate.toISOString()
-        });
-
-        localStorage.setItem(seedKey, 'true');
-        console.log('Datos de prueba del mes pasado generados.');
-    }
-
     initCharts();
     renderUI();
 };
