@@ -42,6 +42,15 @@ const getTransactions = (monthOffset = 0) => {
     }).sort((a, b) => b.id - a.id);
 };
 
+// Obtener transacciones por fecha específica (año, mes 0-11)
+const getTransactionsByDate = (year, month) => {
+    return state.transactions.filter(t => {
+        const tDate = new Date(t.date);
+        return tDate.getMonth() === month &&
+            tDate.getFullYear() === year;
+    }).sort((a, b) => b.id - a.id);
+};
+
 const getTransactionById = (id) => {
     return state.transactions.find(t => t.id === id);
 };
@@ -123,17 +132,98 @@ const getTotals = (transactions) => {
 };
 
 // --- REPORTING MODULE ---
-const generatePreviousMonthReport = () => {
-    const prevMonthTransactions = getTransactions(-1);
-    const totals = getTotals(prevMonthTransactions);
+
+// Detectar meses disponibles en el historial (excluyendo el actual)
+const getAvailableMonths = () => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+
+    const uniqueMonths = new Set();
+    const monthsList = [];
+
+    state.transactions.forEach(t => {
+        const tDate = new Date(t.date);
+        const tYear = tDate.getFullYear();
+        const tMonth = tDate.getMonth();
+
+        // Excluir mes actual
+        if (tYear === currentYear && tMonth === currentMonth) return;
+
+        const key = `${tYear}-${tMonth}`;
+        if (!uniqueMonths.has(key)) {
+            uniqueMonths.add(key);
+            monthsList.push({
+                year: tYear,
+                month: tMonth,
+                label: tDate.toLocaleString('es-CO', { month: 'long', year: 'numeric' })
+            });
+        }
+    });
+
+    // Ordenar descendente (más reciente primero)
+    return monthsList.sort((a, b) => {
+        if (b.year !== a.year) return b.year - a.year;
+        return b.month - a.month;
+    });
+};
+
+const handleReportClick = async () => {
+    const availableMonths = getAvailableMonths();
+
+    if (availableMonths.length === 0) {
+        Swal.fire({
+            title: 'Sin Historial',
+            text: "Aún no tienes movimientos de meses anteriores para analizar.",
+            icon: 'info',
+            background: document.body.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
+            color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b'
+        });
+        return;
+    }
+
+    // Si solo hay un mes disponible, mostrarlo directo
+    if (availableMonths.length === 1) {
+        generateReport(availableMonths[0].year, availableMonths[0].month);
+        return;
+    }
+
+    // Si hay más, mostrar selector
+    const options = {};
+    availableMonths.forEach(m => {
+        options[`${m.year}-${m.month}`] = m.label;
+    });
+
+    const { value: selectedKey } = await Swal.fire({
+        title: 'Selecciona un mes',
+        input: 'select',
+        inputOptions: options,
+        inputPlaceholder: 'Elige un periodo',
+        showCancelButton: true,
+        confirmButtonText: 'Ver Reporte',
+        background: document.body.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
+        color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b',
+        customClass: {
+            input: 'swal2-select-custom'
+        }
+    });
+
+    if (selectedKey) {
+        const [year, month] = selectedKey.split('-');
+        generateReport(parseInt(year), parseInt(month));
+    }
+};
+
+const generateReport = (year, month) => {
+    const transactions = getTransactionsByDate(year, month);
+    const totals = getTotals(transactions);
     const balance = totals.income - totals.expense;
 
-    const now = new Date();
-    const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const monthName = prevMonthDate.toLocaleString('es-CO', { month: 'long', year: 'numeric' });
+    const reportDate = new Date(year, month, 1);
+    const monthName = reportDate.toLocaleString('es-CO', { month: 'long', year: 'numeric' });
 
     // Calcular categoría de mayor gasto
-    const expenses = prevMonthTransactions.filter(t => t.type === 'expense');
+    const expenses = transactions.filter(t => t.type === 'expense');
     const expenseByCategory = expenses.reduce((acc, curr) => {
         acc[curr.category] = (acc[curr.category] || 0) + parseFloat(curr.amount);
         return acc;
@@ -145,27 +235,15 @@ const generatePreviousMonthReport = () => {
     // Mensaje personalizado
     let advice = "";
     if (balance > 0) {
-        advice = "¡Excelente! Lograste un superávit. Considera invertir ese excedente.";
+        advice = "¡Superávit logrado! Buen mes para ahorrar.";
     } else if (balance < 0) {
-        advice = "Cuidado, gastaste más de lo que ingresaste. Revisa tus gastos hormiga.";
+        advice = "Déficit detectado. Ajusta tus gastos el próximo mes.";
     } else {
-        advice = "Equilibrio total. Ni ganancia ni pérdida.";
-    }
-
-    // Si no hubo movimientos
-    if (prevMonthTransactions.length === 0) {
-        Swal.fire({
-            title: `Reporte de ${monthName}`,
-            text: "No registraste movimientos el mes pasado.",
-            icon: 'info',
-            background: document.body.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
-            color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b'
-        });
-        return;
+        advice = "Equilibrio exacto. Intenta reducir gastos variables.";
     }
 
     Swal.fire({
-        title: `<span style="font-size: 1.2rem">Reporte Mensual</span><br><small style="opacity:0.7">${monthName}</small>`,
+        title: `<span style="font-size: 1.2rem">Reporte de ${monthName}</span>`,
         html: `
             <div style="text-align: left; margin-top: 1rem;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem">
@@ -191,7 +269,7 @@ const generatePreviousMonthReport = () => {
             </div>
         `,
         icon: balance >= 0 ? 'success' : 'warning',
-        confirmButtonText: 'Entendido',
+        confirmButtonText: 'Cerrar',
         confirmButtonColor: '#3b82f6',
         background: document.body.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
         color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b',
@@ -547,21 +625,6 @@ const renderUI = () => {
 
     updateCharts();
     generateSuggestions();
-    checkReportAvailability();
-};
-
-const checkReportAvailability = () => {
-    const reportBtn = document.getElementById('report-btn');
-    if (!reportBtn) return;
-
-    // Verificar si hay datos del mes anterior
-    const prevMonthData = getTransactions(-1);
-
-    if (prevMonthData.length > 0) {
-        reportBtn.style.display = 'grid';
-    } else {
-        reportBtn.style.display = 'none';
-    }
 };
 
 const initApp = () => {
@@ -619,7 +682,7 @@ const initApp = () => {
     // Report Button
     const reportBtn = document.getElementById('report-btn');
     if (reportBtn) {
-        reportBtn.addEventListener('click', generatePreviousMonthReport);
+        reportBtn.addEventListener('click', handleReportClick);
     }
 
     // Modal
