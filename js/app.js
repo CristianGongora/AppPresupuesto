@@ -534,10 +534,34 @@ const initApp = () => {
 
         if (deleteBtn) {
             const id = parseInt(deleteBtn.dataset.id);
-            if (confirm('¿Estás seguro de que quieres eliminar este movimiento?')) {
-                deleteTransaction(id);
-                renderUI();
-            }
+
+            Swal.fire({
+                title: '¿Eliminar movimiento?',
+                text: "No podrás revertir esta acción",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                background: document.body.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
+                color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteTransaction(id);
+                    renderUI();
+
+                    Swal.fire({
+                        title: '¡Eliminado!',
+                        text: 'El movimiento ha sido eliminado.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false,
+                        background: document.body.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
+                        color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b'
+                    });
+                }
+            });
         }
         else if (editBtn) {
             const id = parseInt(editBtn.dataset.id);
