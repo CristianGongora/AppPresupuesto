@@ -131,6 +131,100 @@ const getTotals = (transactions) => {
     }, { income: 0, expense: 0 });
 };
 
+// --- DATA PERSISTENCE MODULE (BACKUP) ---
+
+const exportData = () => {
+    try {
+        const dataStr = JSON.stringify(state, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0];
+        const fileName = `finanzas_backup_${dateStr}.json`;
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Copia Guardada',
+            text: 'Tu archivo de respaldo se ha descargado correctamente. Guárdalo en un lugar seguro.',
+            background: document.body.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
+            color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b'
+        });
+    } catch (error) {
+        console.error('Error exportando:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo generar el archivo de respaldo.'
+        });
+    }
+};
+
+const importData = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const importedData = JSON.parse(e.target.result);
+
+            // Validación básica
+            if (!importedData.transactions || !Array.isArray(importedData.transactions)) {
+                throw new Error("Formato de archivo inválido");
+            }
+
+            Swal.fire({
+                title: '¿Restaurar copia?',
+                text: "Esto REEMPLAZARÁ todos los datos actuales con los del archivo. ¿Estás seguro?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3b82f6',
+                cancelButtonColor: '#ef4444',
+                confirmButtonText: 'Sí, restaurar',
+                cancelButtonText: 'Cancelar',
+                background: document.body.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
+                color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    state = importedData;
+                    saveData();
+                    renderUI();
+                    initCharts(); // Re-render charts with new data
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Restaurado',
+                        text: 'Tus datos han sido recuperados con éxito.',
+                        background: document.body.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
+                        color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b'
+                    });
+                }
+            });
+        } catch (error) {
+            console.error('Error importando:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Archivo Inválido',
+                text: 'El archivo seleccionado no es una copia de seguridad válida.',
+                background: document.body.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
+                color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b'
+            });
+        }
+        // Limpiar input para permitir seleccionar el mismo archivo de nuevo
+        event.target.value = '';
+    };
+    reader.readAsText(file);
+};
+
 // --- REPORTING MODULE ---
 
 // Detectar meses disponibles en el historial (excluyendo el actual)
@@ -683,6 +777,20 @@ const initApp = () => {
     const reportBtn = document.getElementById('report-btn');
     if (reportBtn) {
         reportBtn.addEventListener('click', handleReportClick);
+    }
+
+    // Backup Buttons
+    const backupBtn = document.getElementById('backup-btn');
+    const restoreBtn = document.getElementById('restore-btn');
+    const importFile = document.getElementById('import-file');
+
+    if (backupBtn) {
+        backupBtn.addEventListener('click', exportData);
+    }
+
+    if (restoreBtn && importFile) {
+        restoreBtn.addEventListener('click', () => importFile.click());
+        importFile.addEventListener('change', importData);
     }
 
     // Modal

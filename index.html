@@ -23,6 +23,15 @@
         <header class="header">
             <div class="header-content">
                 <h1>Mis Finanzas</h1>
+                <div style="flex: 1"></div>
+                <button id="backup-btn" class="icon-btn" aria-label="Guardar Copia (Backup)"
+                    style="margin-right: 0.5rem;">
+                    <i class="ri-download-cloud-2-line"></i>
+                </button>
+                <input type="file" id="import-file" style="display: none" accept=".json">
+                <button id="restore-btn" class="icon-btn" aria-label="Restaurar Copia" style="margin-right: 0.5rem;">
+                    <i class="ri-upload-cloud-2-line"></i>
+                </button>
                 <button id="report-btn" class="icon-btn" aria-label="Ver reporte mes anterior"
                     style="margin-right: 0.5rem;">
                     <i class="ri-bar-chart-box-line"></i>
