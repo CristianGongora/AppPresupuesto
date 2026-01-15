@@ -81,6 +81,8 @@ body::-webkit-scrollbar,
 .header {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     padding: 1.5rem;
+    padding-bottom: 3rem;
+    /* Extra space for visual gap before tabs */
     border-bottom-left-radius: 2rem;
     border-bottom-right-radius: 2rem;
     color: white;
@@ -490,6 +492,18 @@ select {
     margin-bottom: 1rem;
     color: var(--text-main);
     box-shadow: var(--shadow-sm);
+    /* Ensure content inside card wraps */
+    word-wrap: break-word;
+}
+
+.suggestion-card:last-child {
+    margin-bottom: 6rem;
+    /* Ensure last item is reachable above FAB */
+}
+
+/* Ensure suggestions view allows scrolling */
+#view-suggestions {
+    padding-bottom: 2rem;
 }
 
 .suggestion-card p {
