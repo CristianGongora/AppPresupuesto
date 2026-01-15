@@ -674,6 +674,16 @@ select {
     body {
         height: auto;
         overflow-y: auto;
+        /* Hide scrollbar but keep functionality */
+        scrollbar-width: none;
+        /* Firefox */
+        -ms-overflow-style: none;
+        /* IE/Edge */
+    }
+
+    body::-webkit-scrollbar {
+        display: none;
+        /* Chrome/Safari */
     }
 
     #app {
@@ -697,31 +707,37 @@ select {
         flex-shrink: 1;
     }
 
+    /* Tabs Styling for Desktop */
     .tabs {
         position: sticky;
         top: 0;
         z-index: 100;
         margin-top: 1rem;
         background: var(--bg-app);
-        /* Ensure background behind tabs */
         padding-top: 1rem;
+        /* Force centering and closer gap */
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        /* Closer together */
+        max-width: 100%;
+        /* Don't stretch to 900px */
+    }
+
+    /* Reset max-width for tabs specifically so they don't spread */
+    .tabs>* {
+        flex: 0 1 auto;
+        /* Don't grow */
     }
 
     /* Center content but keep background full width */
     .header-content,
     .balance-card,
-    .tabs>*,
-    /* Target buttons inside tabs */
     .view,
     .modal-content {
         max-width: 900px;
         margin-left: auto;
         margin-right: auto;
-    }
-
-    .tabs {
-        /* Ensure tabs container itself aligns but buttons are centered */
-        justify-content: center;
     }
 
     /* Improve button visibility on desktop */
