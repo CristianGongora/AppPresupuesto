@@ -21,9 +21,16 @@ function saveData() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+// Variables globales para edición
+let editingId = null;
+
 // Actions
 const getTransactions = () => {
-    return [...state.transactions].sort((a, b) => b.id - a.id);
+    return [...state.transactions].sort((a, b) => b.id - a.id); // Orden descendente por ID (fecha)
+};
+
+const getTransactionById = (id) => {
+    return state.transactions.find(t => t.id === id);
 };
 
 const getTransactionsByFilter = (range) => {
@@ -64,6 +71,23 @@ const addTransaction = (transaction) => {
     state.transactions.push(newTransaction);
     saveData();
     return newTransaction;
+};
+
+const updateTransaction = (id, updatedData) => {
+    const index = state.transactions.findIndex(t => t.id === id);
+    if (index !== -1) {
+        // Mantenemos el ID y la fecha original, solo actualizamos los datos editables
+        state.transactions[index] = {
+            ...state.transactions[index],
+            ...updatedData
+        };
+        saveData();
+    }
+};
+
+const deleteTransaction = (id) => {
+    state.transactions = state.transactions.filter(t => t.id !== id);
+    saveData();
 };
 
 const getBalance = () => {
@@ -399,6 +423,7 @@ const renderUI = () => {
             el.className = 'transaction-item';
             const isIncome = t.type === 'income';
 
+            // Estructura actualizada con botones de acción
             el.innerHTML = `
                 <div class="t-info">
                     <div class="t-icon">
@@ -409,8 +434,16 @@ const renderUI = () => {
                         <span>${new Date(t.date).toLocaleDateString()} • ${labels[t.category]}</span>
                     </div>
                 </div>
-                <div class="t-amount ${isIncome ? 'amount-income' : 'amount-expense'}">
-                    ${isIncome ? '+' : '-'}${formatCurrency(t.amount)}
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <div class="t-amount ${isIncome ? 'amount-income' : 'amount-expense'}" style="margin-right:0.5rem">
+                        ${isIncome ? '+' : '-'}${formatCurrency(t.amount)}
+                    </div>
+                    <button class="icon-btn edit-btn" data-id="${t.id}" aria-label="Editar" style="padding: 4px; color: var(--text-muted);">
+                         <i class="ri-pencil-line"></i>
+                    </button>
+                    <button class="icon-btn delete-btn" data-id="${t.id}" aria-label="Eliminar" style="padding: 4px; color: #ef4444;">
+                        <i class="ri-delete-bin-line"></i>
+                    </button>
                 </div>
             `;
             transactionsListEl.appendChild(el);
@@ -476,8 +509,59 @@ const initApp = () => {
     // Modal
     const fab = document.getElementById('fab-add');
     const closeBtn = document.getElementById('close-modal');
-    fab.addEventListener('click', () => modal.classList.remove('hidden'));
-    closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+    // Función para abrir modal en modo "Nuevo"
+    const openModalNew = () => {
+        editingId = null;
+        form.reset();
+        document.querySelector('.modal-header h3').textContent = 'Nuevo Movimiento';
+        document.getElementById('type-expense').checked = true;
+        modal.classList.remove('hidden');
+    };
+
+    fab.addEventListener('click', openModalNew);
+
+    closeBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        editingId = null;
+    });
+
+    // Event Delegation para Editar y Eliminar
+    transactionsListEl.addEventListener('click', (e) => {
+        // Buscar el botón o el icono dentro del botón
+        const editBtn = e.target.closest('.edit-btn');
+        const deleteBtn = e.target.closest('.delete-btn');
+
+        if (deleteBtn) {
+            const id = parseInt(deleteBtn.dataset.id);
+            if (confirm('¿Estás seguro de que quieres eliminar este movimiento?')) {
+                deleteTransaction(id);
+                renderUI();
+            }
+        }
+        else if (editBtn) {
+            const id = parseInt(editBtn.dataset.id);
+            const transaction = getTransactionById(id);
+
+            if (transaction) {
+                editingId = id;
+                document.querySelector('.modal-header h3').textContent = 'Editar Movimiento';
+
+                // Rellenar formulario
+                document.getElementById('amount').value = transaction.amount;
+                document.getElementById('description').value = transaction.description;
+                document.getElementById('category').value = transaction.category;
+
+                if (transaction.type === 'income') {
+                    document.getElementById('type-income').checked = true;
+                } else {
+                    document.getElementById('type-expense').checked = true;
+                }
+
+                modal.classList.remove('hidden');
+            }
+        }
+    });
 
     // Form
     form.addEventListener('submit', (e) => {
@@ -487,8 +571,14 @@ const initApp = () => {
         const description = document.getElementById('description').value;
         const category = document.getElementById('category').value;
 
-        addTransaction({ type, amount, description, category });
+        if (editingId) {
+            updateTransaction(editingId, { type, amount, description, category });
+        } else {
+            addTransaction({ type, amount, description, category });
+        }
+
         form.reset();
+        editingId = null;
         modal.classList.add('hidden');
         renderUI();
     });
