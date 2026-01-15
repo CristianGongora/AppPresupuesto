@@ -67,14 +67,15 @@
             </div>
         </header>
 
+        <!-- Tabs Navigation (Moved outside main for fixed/sticky behavior) -->
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="transactions">Movimientos</button>
+            <button class="tab-btn" data-tab="stats">Estadísticas</button>
+            <button class="tab-btn" data-tab="suggestions">Sugerencias</button>
+        </nav>
+
         <!-- Main Content -->
         <main class="main-container">
-            <!-- Tabs Navigation -->
-            <nav class="tabs">
-                <button class="tab-btn active" data-tab="transactions">Movimientos</button>
-                <button class="tab-btn" data-tab="stats">Estadísticas</button>
-                <button class="tab-btn" data-tab="suggestions">Sugerencias</button>
-            </nav>
 
             <!-- Transactions View -->
             <section id="view-transactions" class="view active">
