@@ -558,7 +558,7 @@ const checkReportAvailability = () => {
     const prevMonthData = getTransactions(-1);
 
     if (prevMonthData.length > 0) {
-        reportBtn.style.display = 'flex';
+        reportBtn.style.display = 'grid';
     } else {
         reportBtn.style.display = 'none';
     }
