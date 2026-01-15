@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Finanzas Control</title>
+    <!-- Remix Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon.svg">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Header -->
+
+        <header class="header">
+            <div class="header-content">
+                <h1>Mis Finanzas</h1>
+                <button id="theme-toggle" class="icon-btn" aria-label="Cambiar tema">
+                    <i class="ri-moon-line"></i>
+                </button>
+            </div>
+
+            <div class="balance-card">
+                <p class="label">Saldo Actual</p>
+                <h2 id="total-balance">$0.00</h2>
+                <div class="balance-details">
+                    <div class="detail-item income">
+                        <i class="ri-arrow-up-circle-fill"></i>
+                        <div>
+                            <span>Ingresos</span>
+                            <p id="total-income">$0.00</p>
+                        </div>
+                    </div>
+                    <div class="detail-item expense">
+                        <i class="ri-arrow-down-circle-fill"></i>
+                        <div>
+                            <span>Gastos</span>
+                            <p id="total-expense">$0.00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-container">
+            <!-- Tabs Navigation -->
+            <nav class="tabs">
+                <button class="tab-btn active" data-tab="transactions">Movimientos</button>
+                <button class="tab-btn" data-tab="stats">Estadísticas</button>
+                <button class="tab-btn" data-tab="suggestions">Sugerencias</button>
+            </nav>
+
+            <!-- Transactions View -->
+            <section id="view-transactions" class="view active">
+                <div class="transactions-list" id="transactions-list">
+                    <!-- Empty State populated by JS -->
+                    <div class="empty-state">
+                        <i class="ri-file-list-3-line"></i>
+                        <p>No hay movimientos aún</p>
+                    </div>
+                </div>
+
+                <button id="fab-add" class="fab" aria-label="Agregar movimiento">
+                    <i class="ri-add-line"></i>
+                </button>
+            </section>
+
+            <!-- Stats View -->
+            <section id="view-stats" class="view hidden">
+                <!-- Filters -->
+                <div class="stats-filters">
+                    <div class="filter-group">
+                        <button class="filter-btn active" data-range="week">Semana</button>
+                        <button class="filter-btn" data-range="month">Mes</button>
+                        <button class="filter-btn" data-range="year">Año</button>
+                        <button class="filter-btn" data-range="custom">Personalizado</button>
+                    </div>
+                </div>
+
+                <div id="custom-date-selector" class="custom-date-selector hidden">
+                    <input type="date" id="date-start" aria-label="Fecha inicio">
+                    <span>a</span>
+                    <input type="date" id="date-end" aria-label="Fecha fin">
+                    <button id="apply-custom-filter" class="icon-btn small-btn"><i class="ri-check-line"></i></button>
+                </div>
+
+                <!-- Stats Summary Cards -->
+                <div class="stats-summary-cards">
+                    <div class="mini-card income">
+                        <span>Ingresos</span>
+                        <h4 id="period-income">$0</h4>
+                    </div>
+                    <div class="mini-card expense">
+                        <span>Gastos</span>
+                        <h4 id="period-expense">$0</h4>
+                    </div>
+                    <div class="mini-card net">
+                        <span>Balance</span>
+                        <h4 id="period-balance">$0</h4>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="chart-container">
+                    <canvas id="balanceChart"></canvas> <!-- Comparative Bar Chart -->
+                </div>
+                <div class="chart-container" style="margin-top: 2rem;">
+                    <canvas id="expenseChart"></canvas> <!-- Doughnut Chart -->
+                </div>
+
+                <div class="stats-breakdown" id="stats-breakdown">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Suggestions View -->
+            <section id="view-suggestions" class="view hidden">
+                <div class="suggestions-container" id="suggestions-container">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Modal Form -->
+        <div id="modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Nuevo Movimiento</h3>
+                    <button id="close-modal" class="icon-btn"><i class="ri-close-line"></i></button>
+                </div>
+                <form id="transaction-form">
+                    <div class="form-type-toggle">
+                        <input type="radio" name="type" id="type-expense" value="expense" checked>
+                        <label for="type-expense" class="type-btn expense-btn">Gasto</label>
+
+                        <input type="radio" name="type" id="type-income" value="income">
+                        <label for="type-income" class="type-btn income-btn">Ingreso</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Monto</label>
+                        <div class="input-wrapper">
+                            <span>$</span>
+                            <input type="number" id="amount" placeholder="0.00" required step="0.01"
+                                inputmode="decimal">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <input type="text" id="description" placeholder="Ej: Comida, Sueldo" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select id="category" required>
+                            <option value="food">Comida / Restaurante</option>
+                            <option value="transport">Transporte / Gasolina</option>
+                            <option value="utilities">Servicios (Luz, Agua)</option>
+                            <option value="entertainment">Entretenimiento</option>
+                            <option value="shopping">Compras / Ropa</option>
+                            <option value="health">Salud / Farmacia</option>
+                            <option value="salary">Salario / Nómina (Ingreso)</option>
+                            <option value="other">Otro</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Service Worker Registrado'))
+                .catch(err => console.error('SW Error:', err));
+        }
+    </script>
+</body>
+
+</html>
