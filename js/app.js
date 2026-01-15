@@ -154,7 +154,9 @@ const exportData = () => {
         Swal.fire({
             icon: 'success',
             title: 'Copia Guardada',
-            text: 'Tu archivo de respaldo se ha descargado correctamente. Guárdalo en un lugar seguro.',
+            text: 'Descarga completada.',
+            timer: 2000,
+            showConfirmButton: false,
             background: document.body.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
             color: document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b'
         });
@@ -808,6 +810,13 @@ const initApp = () => {
             if (headerActions.classList.contains('show') && !headerActions.contains(e.target)) {
                 headerActions.classList.remove('show');
             }
+        });
+
+        // Close menu when an option is clicked (Mobile UX)
+        headerActions.querySelectorAll('.icon-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                headerActions.classList.remove('show');
+            });
         });
     }
 
