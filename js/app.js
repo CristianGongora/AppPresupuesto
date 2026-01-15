@@ -547,6 +547,21 @@ const renderUI = () => {
 
     updateCharts();
     generateSuggestions();
+    checkReportAvailability();
+};
+
+const checkReportAvailability = () => {
+    const reportBtn = document.getElementById('report-btn');
+    if (!reportBtn) return;
+
+    // Verificar si hay datos del mes anterior
+    const prevMonthData = getTransactions(-1);
+
+    if (prevMonthData.length > 0) {
+        reportBtn.style.display = 'flex';
+    } else {
+        reportBtn.style.display = 'none';
+    }
 };
 
 const initApp = () => {
