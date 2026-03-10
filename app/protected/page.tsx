@@ -75,7 +75,7 @@ export default function Dashboard() {
     }
   }
 
-  async function handleAddTransaction(transaction: Omit<Transaction, 'id' | 'created_at'>) {
+  async function handleAddTransaction(transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at'>) {
     if (!user) return
 
     const { error } = await supabase
