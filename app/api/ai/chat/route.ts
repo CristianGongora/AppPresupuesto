@@ -1,4 +1,4 @@
-import { consumeStream, convertToModelMessages, streamText, UIMessage } from 'ai'
+import { convertToModelMessages, streamText, UIMessage } from 'ai'
 
 export const maxDuration = 30
 
@@ -18,6 +18,7 @@ CAPACIDADES:
 - Dar consejos sobre planificación financiera
 - Explicar conceptos financieros de forma simple
 - Motivar a alcanzar metas financieras
+- Ayudar con gestión de créditos, cuentas bancarias y CDTs
 
 FORMATO DE RESPUESTAS:
 - Responde en español
@@ -33,17 +34,21 @@ IMPORTANTE:
 - Si no tienes suficiente información, pregunta antes de asumir`
 
 export async function POST(req: Request) {
-  const { messages, financialContext }: { messages: UIMessage[]; financialContext: string } = await req.json()
+  try {
+    const { messages, financialContext }: { messages: UIMessage[]; financialContext: string } = await req.json()
 
-  const result = streamText({
-    model: 'openai/gpt-4o-mini',
-    system: `${SYSTEM_PROMPT}\n\n${financialContext}`,
-    messages: await convertToModelMessages(messages),
-    abortSignal: req.signal,
-  })
+    const result = streamText({
+      model: 'openai/gpt-4o-mini',
+      system: `${SYSTEM_PROMPT}\n\n${financialContext}`,
+      messages: await convertToModelMessages(messages),
+    })
 
-  return result.toUIMessageStreamResponse({
-    originalMessages: messages,
-    consumeSseStream: consumeStream,
-  })
+    return result.toUIMessageStreamResponse()
+  } catch (error) {
+    console.error('[v0] Error in AI chat:', error)
+    return new Response(
+      JSON.stringify({ error: 'Error al procesar la solicitud de IA' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    )
+  }
 }

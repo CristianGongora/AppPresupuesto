@@ -26,7 +26,7 @@ export default function Dashboard() {
   const router = useRouter()
   const supabase = createClient()
   
-  const [user, setUser] = useState<{ email: string; id: string } | null>(null)
+  const [user, setUser] = useState<{ email: string; id: string; displayName: string } | null>(null)
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [showTransactionModal, setShowTransactionModal] = useState(false)
@@ -34,15 +34,24 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function loadData() {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user: authUser } } = await supabase.auth.getUser()
       
-      if (!user) {
+      if (!authUser) {
         router.push('/auth/login')
         return
       }
 
-      setUser({ email: user.email || '', id: user.id })
-      await loadTransactions(user.id)
+      // Obtener el nombre del perfil
+      const displayName = authUser.user_metadata?.display_name || 
+                          authUser.email?.split('@')[0] || 
+                          'Usuario'
+
+      setUser({ 
+        email: authUser.email || '', 
+        id: authUser.id,
+        displayName 
+      })
+      await loadTransactions(authUser.id)
       setLoading(false)
     }
 
@@ -176,7 +185,7 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-              Bienvenido de vuelta
+              Hola, {user?.displayName}
             </h1>
             <p className="text-muted-foreground mt-1">
               {user?.email}
