@@ -133,6 +133,11 @@ export default function SettingsPage() {
         throw new Error(data.error || 'Error desconocido')
       }
 
+      // Actualizar el contexto de lenguaje si cambió
+      if (profile.language !== language) {
+        setLanguage(profile.language as 'es' | 'en' | 'pt')
+      }
+
       setMessage({ type: 'success', text: 'Preferencias guardadas correctamente' })
     } catch (error) {
       setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Error al guardar' })
