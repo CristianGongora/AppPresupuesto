@@ -329,51 +329,16 @@ export default function SettingsPage() {
               </select>
             </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Zona horaria
-                  </label>
-                  <select
-                    value={profile.timezone}
-                    onChange={(e) => setProfile({ ...profile, timezone: e.target.value })}
-                    className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground transition-colors"
-                  >
-                    {TIMEZONES.map((tz) => (
-                      <option key={tz.value} value={tz.value}>
-                        {tz.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Idioma
-                </label>
-                <select
-                  value={profile.language}
-                  onChange={(e) => setProfile({ ...profile, language: e.target.value })}
-                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground transition-colors"
-                >
-                  {LANGUAGES.map((lang) => (
-                    <option key={lang.code} value={lang.code}>
-                      {lang.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={saving}
-              className="bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-medium px-6 py-2.5 rounded-lg transition-all"
-            >
-              {saving ? t('auth.loading') : t('settings.savePreferences')}
-                </button>
-              </div>
-            </form>
+            <div className="flex justify-end mt-6">
+              <button
+                type="submit"
+                disabled={saving}
+                className="bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-medium px-6 py-2.5 rounded-lg transition-all"
+              >
+                {saving ? t('auth.loading') : t('settings.savePreferences')}
+              </button>
+            </div>
+          </form>
           </div>
 
           {/* Password Change */}
