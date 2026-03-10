@@ -41,7 +41,7 @@ export default function MonthlyChart({ transactions }: { transactions: any[] }) 
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />
             <YAxis />
-            <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
+            <Tooltip formatter={(value) => `$${Number(value).toFixed(2)}`} />
             <Legend />
             <Bar dataKey="Ingresos" fill="#10b981" />
             <Bar dataKey="Gastos" fill="#ef4444" />
