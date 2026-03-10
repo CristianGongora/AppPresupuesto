@@ -80,24 +80,18 @@ export default function SettingsPage() {
 
       setUserEmail(user.email || '')
       
-      // Try to load profile from database
-      const { data: profileData } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-
-      if (profileData) {
-        setProfile(profileData)
-      } else {
-        // Create default profile if doesn't exist
-        setProfile({
-          id: user.id,
-          display_name: user.user_metadata?.display_name || '',
-          currency: 'USD',
-          timezone: 'America/New_York',
-          language: 'es',
-        })
+      // Load profile from API
+      try {
+        const response = await fetch('/api/profile')
+        const data = await response.json()
+        
+        if (response.ok) {
+          setProfile(data)
+        } else {
+          console.error('Error loading profile:', data)
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error)
       }
       
       setLoading(false)
@@ -112,23 +106,29 @@ export default function SettingsPage() {
     setMessage(null)
 
     try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .upsert({
-          id: profile.id,
+      const response = await fetch('/api/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           display_name: profile.display_name,
           currency: profile.currency,
           timezone: profile.timezone,
           language: profile.language,
-          updated_at: new Date().toISOString(),
-        })
+        }),
+      })
 
-      if (error) throw error
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error desconocido')
+      }
 
       setMessage({ type: 'success', text: 'Preferencias guardadas correctamente' })
     } catch (error) {
       console.error('Error saving profile:', error)
-      setMessage({ type: 'error', text: 'Error al guardar las preferencias' })
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Error al guardar las preferencias' })
     } finally {
       setSaving(false)
     }
