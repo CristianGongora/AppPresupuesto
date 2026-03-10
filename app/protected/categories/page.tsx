@@ -149,7 +149,8 @@ export default function CategoriesPage() {
   }
 
   const renderIcon = (iconName: string, color: string) => {
-    const IconComponent = (LucideIcons as Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>>)[iconName]
+    const icons = LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>>
+    const IconComponent = icons[iconName]
     if (!IconComponent) return <LucideIcons.Circle className="w-5 h-5" style={{ color }} />
     return <IconComponent className="w-5 h-5" style={{ color }} />
   }

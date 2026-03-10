@@ -76,7 +76,8 @@ export function IconGallery({ selectedIcon, selectedColor, onSelectIcon, onSelec
   }, [searchTerm, activeCategory])
 
   const renderIcon = (iconName: string) => {
-    const IconComponent = (LucideIcons as Record<string, React.ComponentType<{ className?: string }>>)[iconName]
+    const icons = LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>
+    const IconComponent = icons[iconName]
     if (!IconComponent) return null
     return <IconComponent className="w-5 h-5" />
   }
@@ -222,7 +223,8 @@ export function IconPicker({ icon, color, onChange }: IconPickerProps) {
   const { t } = useLanguage()
 
   const renderIcon = () => {
-    const IconComponent = (LucideIcons as Record<string, React.ComponentType<{ className?: string }>>)[icon]
+    const icons = LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>
+    const IconComponent = icons[icon]
     if (!IconComponent) return <LucideIcons.Circle className="w-5 h-5" />
     return <IconComponent className="w-5 h-5" />
   }

@@ -115,7 +115,8 @@ export function TransactionModal({ onClose, onSave }: TransactionModalProps) {
   }
 
   const renderCategoryIcon = (iconName: string, color: string) => {
-    const IconComponent = (LucideIcons as Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>>)[iconName]
+    const icons = LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>>
+    const IconComponent = icons[iconName]
     if (!IconComponent) return <LucideIcons.Circle className="w-4 h-4" style={{ color }} />
     return <IconComponent className="w-4 h-4" style={{ color }} />
   }
