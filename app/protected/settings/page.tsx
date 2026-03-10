@@ -16,43 +16,11 @@ type UserProfile = {
   language: string
 }
 
-const CURRENCIES = [
-  { code: 'USD', name: 'Dolar estadounidense ($)' },
-  { code: 'EUR', name: 'Euro (E)' },
-  { code: 'MXN', name: 'Peso mexicano ($)' },
-  { code: 'COP', name: 'Peso colombiano ($)' },
-  { code: 'ARS', name: 'Peso argentino ($)' },
-  { code: 'CLP', name: 'Peso chileno ($)' },
-  { code: 'PEN', name: 'Sol peruano (S/)' },
-  { code: 'BRL', name: 'Real brasileno (R$)' },
-]
-
-const TIMEZONES = [
-  { value: 'America/New_York', name: 'Nueva York (EST)' },
-  { value: 'America/Chicago', name: 'Chicago (CST)' },
-  { value: 'America/Denver', name: 'Denver (MST)' },
-  { value: 'America/Los_Angeles', name: 'Los Angeles (PST)' },
-  { value: 'America/Mexico_City', name: 'Ciudad de Mexico' },
-  { value: 'America/Bogota', name: 'Bogota' },
-  { value: 'America/Lima', name: 'Lima' },
-  { value: 'America/Santiago', name: 'Santiago' },
-  { value: 'America/Buenos_Aires', name: 'Buenos Aires' },
-  { value: 'America/Sao_Paulo', name: 'Sao Paulo' },
-  { value: 'Europe/Madrid', name: 'Madrid' },
-  { value: 'Europe/London', name: 'Londres' },
-]
-
-const LANGUAGES = [
-  { code: 'es', name: 'Espanol' },
-  { code: 'en', name: 'English' },
-  { code: 'pt', name: 'Portugues' },
-]
-
 export default function SettingsPage() {
   const router = useRouter()
   const supabase = createClient()
   const { theme, setTheme } = useTheme()
-  const { language, setLanguage } = useLanguage()
+  const { language, setLanguage, t } = useLanguage()
   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -66,6 +34,22 @@ export default function SettingsPage() {
     timezone: 'America/New_York',
     language: 'es',
   })
+
+  // Obtener opciones de monedas, zonas horarias e idiomas del archivo de traducciones
+  const getCurrencyOptions = () => {
+    const currenciesObj = t('settings.currencies')
+    return Object.entries(currenciesObj).map(([code, name]: [string, any]) => ({ code, name }))
+  }
+
+  const getTimezoneOptions = () => {
+    const timezonesObj = t('settings.timezones')
+    return Object.entries(timezonesObj).map(([value, name]: [string, any]) => ({ value, name }))
+  }
+
+  const getLanguageOptions = () => {
+    const languagesObj = t('settings.languages')
+    return Object.entries(languagesObj).map(([code, name]: [string, any]) => ({ code, name }))
+  }
 
   const [passwordData, setPasswordData] = useState({
     newPassword: '',
@@ -267,10 +251,10 @@ export default function SettingsPage() {
               <p className="text-sm text-muted-foreground">Informacion basica de tu cuenta</p>
             </div>
             <form onSubmit={handleSaveProfile} className="p-6 space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Correo electronico
-                </label>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                {t('settings.email')}
+              </label>
                 <input
                   type="email"
                   value={userEmail}
@@ -279,10 +263,10 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Nombre para mostrar
-                </label>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                {t('settings.displayName')}
+              </label>
                 <input
                   type="text"
                   value={profile.display_name || ''}
@@ -292,23 +276,58 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Moneda preferida
-                  </label>
-                  <select
-                    value={profile.currency}
-                    onChange={(e) => setProfile({ ...profile, currency: e.target.value })}
-                    className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground transition-colors"
-                  >
-                    {CURRENCIES.map((currency) => (
-                      <option key={currency.code} value={currency.code}>
-                        {currency.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  {t('settings.preferredCurrency')}
+                </label>
+                <select
+                  value={profile.currency}
+                  onChange={(e) => setProfile({ ...profile, currency: e.target.value })}
+                  className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  {getCurrencyOptions().map((curr: any) => (
+                    <option key={curr.code} value={curr.code}>
+                      {curr.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  {t('settings.timezone')}
+                </label>
+                <select
+                  value={profile.timezone}
+                  onChange={(e) => setProfile({ ...profile, timezone: e.target.value })}
+                  className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  {getTimezoneOptions().map((tz: any) => (
+                    <option key={tz.value} value={tz.value}>
+                      {tz.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-foreground mb-2">
+                {t('settings.language')}
+              </label>
+              <select
+                value={profile.language}
+                onChange={(e) => setProfile({ ...profile, language: e.target.value })}
+                className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                {getLanguageOptions().map((lang: any) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
@@ -346,12 +365,12 @@ export default function SettingsPage() {
               </div>
 
               <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
-                >
-                  {saving ? 'Guardando...' : 'Guardar preferencias'}
+            <button
+              type="submit"
+              disabled={saving}
+              className="bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-medium px-6 py-2.5 rounded-lg transition-all"
+            >
+              {saving ? t('auth.loading') : t('settings.savePreferences')}
                 </button>
               </div>
             </form>
