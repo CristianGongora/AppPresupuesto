@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import { formatCurrency } from '@/lib/utils'
+import { useLanguage } from './LanguageProvider'
 
 interface Transaction {
   id: string
@@ -22,6 +23,7 @@ interface AIAssistantProps {
 export function AIAssistant({ transactions, onClose }: AIAssistantProps) {
   const [input, setInput] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const { t } = useLanguage()
   
   // Calculate financial summary for context
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0)
@@ -79,7 +81,7 @@ Resumen financiero del usuario:
   }
 
   const suggestedQuestions = [
-    '¿Cómo puedo ahorrar más dinero?',
+    t('ai.askMe'),
     '¿En qué categoría gasto más?',
     'Dame consejos para mejorar mi salud financiera',
     '¿Cómo organizo mejor mis gastos?',
@@ -96,7 +98,7 @@ Resumen financiero del usuario:
             </svg>
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">Asistente Financiero</h3>
+            <h3 className="font-semibold text-foreground">{t('ai.assistant')}</h3>
             <p className="text-xs text-muted-foreground">Powered by AI</p>
           </div>
         </div>
@@ -191,7 +193,8 @@ Resumen financiero del usuario:
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Escribe tu pregunta..."
+            onKeyPress={(e) => e.key === 'Enter' && handleSubmit(e)}
+            placeholder={t('ai.typeMessage')}
             className="flex-1 px-4 py-3 bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground text-sm"
             disabled={isLoading}
           />

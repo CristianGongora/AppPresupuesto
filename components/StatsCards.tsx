@@ -1,6 +1,7 @@
 'use client'
 
 import { formatCurrency } from '@/lib/utils'
+import { useLanguage } from './LanguageProvider'
 
 interface StatsCardsProps {
   totalIncome: number
@@ -9,12 +10,13 @@ interface StatsCardsProps {
 }
 
 export function StatsCards({ totalIncome, totalExpense, balance }: StatsCardsProps) {
+  const { t } = useLanguage()
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
       {/* Income Card */}
       <div className="stat-card group">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-sm font-medium text-muted-foreground">Ingresos</span>
+          <span className="text-sm font-medium text-muted-foreground">{t('dashboard.totalIncome')}</span>
           <div className="w-10 h-10 rounded-lg bg-income/10 flex items-center justify-center group-hover:scale-110 transition-transform">
             <svg className="w-5 h-5 text-income" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
@@ -30,7 +32,7 @@ export function StatsCards({ totalIncome, totalExpense, balance }: StatsCardsPro
       {/* Expense Card */}
       <div className="stat-card group">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-sm font-medium text-muted-foreground">Gastos</span>
+          <span className="text-sm font-medium text-muted-foreground">{t('dashboard.totalExpense')}</span>
           <div className="w-10 h-10 rounded-lg bg-expense/10 flex items-center justify-center group-hover:scale-110 transition-transform">
             <svg className="w-5 h-5 text-expense" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
@@ -48,7 +50,7 @@ export function StatsCards({ totalIncome, totalExpense, balance }: StatsCardsPro
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
         <div className="relative">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-muted-foreground">Balance</span>
+            <span className="text-sm font-medium text-muted-foreground">{t('dashboard.balance')}</span>
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform ${
               balance >= 0 ? 'bg-income/10' : 'bg-expense/10'
             }`}>

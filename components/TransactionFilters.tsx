@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLanguage } from './LanguageProvider'
 
 export interface FilterState {
   type: 'all' | 'income' | 'expense'
@@ -18,12 +19,12 @@ interface TransactionFiltersProps {
   categories: string[]
 }
 
-const INCOME_CATEGORIES = ['Salario', 'Freelance', 'Inversiones', 'Ventas', 'Otros ingresos']
-const EXPENSE_CATEGORIES = ['Alimentacion', 'Transporte', 'Vivienda', 'Servicios', 'Salud', 'Entretenimiento', 'Educacion', 'Ropa', 'Otros gastos']
-
 export function TransactionFilters({ filters, onFiltersChange, categories }: TransactionFiltersProps) {
+  const { t } = useLanguage()
   const [showAdvanced, setShowAdvanced] = useState(false)
 
+  const INCOME_CATEGORIES = t('transactions.incomeCategories').split(', ')
+  const EXPENSE_CATEGORIES = t('transactions.expenseCategories').split(', ')
   const allCategories = [...new Set([...INCOME_CATEGORIES, ...EXPENSE_CATEGORIES, ...categories])]
 
   const handleChange = (key: keyof FilterState, value: string) => {
@@ -62,7 +63,7 @@ export function TransactionFilters({ filters, onFiltersChange, categories }: Tra
             type="text"
             value={filters.searchTerm}
             onChange={(e) => handleChange('searchTerm', e.target.value)}
-            placeholder="Buscar transacciones..."
+            placeholder={t('filters.search')}
             className="w-full pl-10 pr-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
           />
         </div>
@@ -73,9 +74,9 @@ export function TransactionFilters({ filters, onFiltersChange, categories }: Tra
             onChange={(e) => handleChange('type', e.target.value)}
             className="px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
           >
-            <option value="all">Todos</option>
-            <option value="income">Ingresos</option>
-            <option value="expense">Gastos</option>
+            <option value="all">{t('dashboard.allTransactions')}</option>
+            <option value="income">{t('filters.incomes')}</option>
+            <option value="expense">{t('filters.expenses')}</option>
           </select>
 
           <select
@@ -83,7 +84,7 @@ export function TransactionFilters({ filters, onFiltersChange, categories }: Tra
             onChange={(e) => handleChange('category', e.target.value)}
             className="px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
           >
-            <option value="">Todas las categorias</option>
+            <option value="">{t('dashboard.allCategories')}</option>
             {allCategories.map((cat) => (
               <option key={cat} value={cat}>{cat}</option>
             ))}
@@ -111,7 +112,7 @@ export function TransactionFilters({ filters, onFiltersChange, categories }: Tra
         <div className="mt-4 pt-4 border-t border-border">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Fecha desde</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">{t('filters.from')}</label>
               <input
                 type="date"
                 value={filters.dateFrom}
@@ -120,7 +121,7 @@ export function TransactionFilters({ filters, onFiltersChange, categories }: Tra
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Fecha hasta</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">{t('filters.to')}</label>
               <input
                 type="date"
                 value={filters.dateTo}
@@ -129,7 +130,7 @@ export function TransactionFilters({ filters, onFiltersChange, categories }: Tra
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Monto minimo</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">{t('filters.minAmount')}</label>
               <input
                 type="number"
                 value={filters.amountMin}
@@ -139,12 +140,12 @@ export function TransactionFilters({ filters, onFiltersChange, categories }: Tra
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Monto maximo</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">{t('filters.maxAmount')}</label>
               <input
                 type="number"
                 value={filters.amountMax}
                 onChange={(e) => handleChange('amountMax', e.target.value)}
-                placeholder="Sin limite"
+                placeholder={t('filters.noLimit')}
                 className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
               />
             </div>
@@ -159,7 +160,7 @@ export function TransactionFilters({ filters, onFiltersChange, categories }: Tra
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                Limpiar filtros
+                {t('filters.clear')}
               </button>
             </div>
           )}

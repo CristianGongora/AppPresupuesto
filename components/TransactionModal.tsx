@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLanguage } from './LanguageProvider'
 import type { Transaction } from '@/lib/utils'
 
 interface TransactionModalProps {
@@ -8,17 +9,8 @@ interface TransactionModalProps {
   onSave: (transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at'>) => void
 }
 
-const EXPENSE_CATEGORIES = [
-  'Alimentación', 'Transporte', 'Vivienda', 'Entretenimiento', 
-  'Salud', 'Educación', 'Ropa', 'Servicios', 'Otros'
-]
-
-const INCOME_CATEGORIES = [
-  'Salario', 'Freelance', 'Inversiones', 'Ventas', 
-  'Regalos', 'Reembolsos', 'Otros'
-]
-
 export function TransactionModal({ onClose, onSave }: TransactionModalProps) {
+  const { t } = useLanguage()
   const [type, setType] = useState<'income' | 'expense'>('expense')
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
@@ -26,6 +18,8 @@ export function TransactionModal({ onClose, onSave }: TransactionModalProps) {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0])
   const [saving, setSaving] = useState(false)
 
+  const EXPENSE_CATEGORIES = t('transactions.expenseCategories').split(', ')
+  const INCOME_CATEGORIES = t('transactions.incomeCategories').split(', ')
   const categories = type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,7 +48,7 @@ export function TransactionModal({ onClose, onSave }: TransactionModalProps) {
       {/* Modal */}
       <div className="relative w-full max-w-md glass rounded-2xl p-6 animate-fade-in">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-foreground">Nueva transacción</h2>
+          <h2 className="text-xl font-semibold text-foreground">{t('transactions.newTransaction')}</h2>
           <button 
             onClick={onClose}
             className="p-2 rounded-lg hover:bg-secondary transition-colors"
@@ -77,7 +71,7 @@ export function TransactionModal({ onClose, onSave }: TransactionModalProps) {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Gasto
+              {t('dashboard.expense')}
             </button>
             <button
               type="button"
@@ -88,14 +82,14 @@ export function TransactionModal({ onClose, onSave }: TransactionModalProps) {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Ingreso
+              {t('dashboard.income')}
             </button>
           </div>
 
           {/* Amount */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Monto
+              {t('transactions.amount')}
             </label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
@@ -115,7 +109,7 @@ export function TransactionModal({ onClose, onSave }: TransactionModalProps) {
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Descripción
+              {t('transactions.description')}
             </label>
             <input
               type="text"
@@ -130,7 +124,7 @@ export function TransactionModal({ onClose, onSave }: TransactionModalProps) {
           {/* Category */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Categoría
+              {t('transactions.category')}
             </label>
             <select
               value={category}
@@ -148,7 +142,7 @@ export function TransactionModal({ onClose, onSave }: TransactionModalProps) {
           {/* Date */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Fecha
+              {t('transactions.date')}
             </label>
             <input
               type="date"
@@ -169,7 +163,7 @@ export function TransactionModal({ onClose, onSave }: TransactionModalProps) {
                 : 'bg-expense hover:bg-expense/90 text-white'
             } disabled:opacity-50`}
           >
-            {saving ? 'Guardando...' : 'Guardar transacción'}
+            {saving ? t('transactions.saving') : t('transactions.save')}
           </button>
         </form>
       </div>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { useLanguage } from './LanguageProvider'
 
 interface Transaction {
   id: string
@@ -12,6 +13,23 @@ interface Transaction {
   date: string
   created_at: string
 }
+
+interface TransactionListProps {
+  transactions: Transaction[]
+  onDelete: (id: string) => void
+}
+
+export function TransactionList({ transactions, onDelete }: TransactionListProps) {
+  const [deleting, setDeleting] = useState<string | null>(null)
+  const { t } = useLanguage()
+
+  const handleDelete = async (id: string) {
+    if (window.confirm(t('transactions.delete') + '?')) {
+      setDeleting(id)
+      await onDelete(id)
+      setDeleting(null)
+    }
+  }
 
 interface TransactionListProps {
   transactions: Transaction[]
@@ -32,7 +50,7 @@ export function TransactionList({ transactions, onDelete }: TransactionListProps
   if (transactions.length === 0) {
     return (
       <div className="glass rounded-xl p-6 h-full">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Transacciones recientes</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">{t('dashboard.recentTransactions')}</h3>
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mb-4">
             <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -49,7 +67,7 @@ export function TransactionList({ transactions, onDelete }: TransactionListProps
   return (
     <div className="glass rounded-xl p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Transacciones recientes</h3>
+        <h3 className="text-lg font-semibold text-foreground">{t('dashboard.recentTransactions')}</h3>
         <span className="text-sm text-muted-foreground">{transactions.length} items</span>
       </div>
       
