@@ -11,6 +11,7 @@ const translations = {
       recentTransactions: 'Transacciones Recientes',
       settings: 'Configuración',
       finances: 'Finanzas',
+      ai: 'Asistente IA',
       logout: 'Cerrar sesión',
     },
     settings: {
@@ -67,6 +68,7 @@ const translations = {
       recentTransactions: 'Recent Transactions',
       settings: 'Settings',
       finances: 'Finances',
+      ai: 'AI Assistant',
       logout: 'Logout',
     },
     settings: {
@@ -123,6 +125,7 @@ const translations = {
       recentTransactions: 'Transações Recentes',
       settings: 'Configurações',
       finances: 'Finanças',
+      ai: 'Assistente de IA',
       logout: 'Sair',
     },
     settings: {
