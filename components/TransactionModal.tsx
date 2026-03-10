@@ -5,7 +5,7 @@ import type { Transaction } from '@/lib/utils'
 
 interface TransactionModalProps {
   onClose: () => void
-  onSave: (transaction: Omit<Transaction, 'id' | 'created_at'>) => void
+  onSave: (transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at'>) => void
 }
 
 const EXPENSE_CATEGORIES = [
