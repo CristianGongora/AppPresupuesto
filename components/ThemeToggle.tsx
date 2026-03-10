@@ -1,14 +1,27 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useTheme } from './ThemeProvider'
 
 export function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const cycleTheme = () => {
     if (theme === 'light') setTheme('dark')
     else if (theme === 'dark') setTheme('system')
     else setTheme('light')
+  }
+
+  // Render placeholder during SSR to avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="w-10 h-10 rounded-lg bg-secondary animate-pulse" />
+    )
   }
 
   return (
