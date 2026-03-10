@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useTheme } from '@/components/ThemeProvider'
+import { useLanguage } from '@/components/LanguageProvider'
 
 type UserProfile = {
   id: string
@@ -51,6 +52,7 @@ export default function SettingsPage() {
   const router = useRouter()
   const supabase = createClient()
   const { theme, setTheme } = useTheme()
+  const { language, setLanguage } = useLanguage()
   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -87,7 +89,9 @@ export default function SettingsPage() {
         const data = await response.json()
         
         if (response.ok) {
-          setProfile(data)
+      setProfile(data)
+        } else {
+          console.error('Error loading profile:', data)
         }
       } catch (error) {
         console.error('Error fetching profile:', error)
@@ -98,6 +102,13 @@ export default function SettingsPage() {
 
     loadProfile()
   }, [supabase, router])
+
+  // Sincronizar idioma cuando cambia el perfil
+  useEffect(() => {
+    if (profile.language) {
+      setLanguage(profile.language as 'es' | 'en' | 'pt')
+    }
+  }, [profile.language, setLanguage])
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
