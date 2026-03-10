@@ -133,7 +133,7 @@ export function TransactionModal({ onClose, onSave }: TransactionModalProps) {
               required
             >
               <option value="">Selecciona una categoría</option>
-              {categories.map(cat => (
+              {categories.map((cat: string) => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
