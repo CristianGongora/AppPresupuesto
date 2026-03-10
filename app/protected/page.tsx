@@ -11,6 +11,8 @@ import { TransactionList } from '@/components/TransactionList'
 import { MonthlyChart } from '@/components/charts/MonthlyChart'
 import { CategoryChart } from '@/components/charts/CategoryChart'
 import { AIAssistant } from '@/components/AIAssistant'
+import { AISuggestions } from '@/components/AISuggestions'
+import { TransactionFilters, FilterState } from '@/components/TransactionFilters'
 
 export interface Transaction {
   id: string
@@ -31,6 +33,15 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [showTransactionModal, setShowTransactionModal] = useState(false)
   const [showAIAssistant, setShowAIAssistant] = useState(false)
+  const [filters, setFilters] = useState<FilterState>({
+    type: 'all',
+    category: '',
+    dateFrom: '',
+    dateTo: '',
+    amountMin: '',
+    amountMax: '',
+    searchTerm: '',
+  })
 
   useEffect(() => {
     async function loadData() {
@@ -120,6 +131,24 @@ export default function Dashboard() {
   
   const balance = totalIncome - totalExpense
 
+  // Apply filters
+  const filteredTransactions = transactions.filter(t => {
+    if (filters.type !== 'all' && t.type !== filters.type) return false
+    if (filters.category && t.category !== filters.category) return false
+    if (filters.dateFrom && t.date < filters.dateFrom) return false
+    if (filters.dateTo && t.date > filters.dateTo) return false
+    if (filters.amountMin && t.amount < parseFloat(filters.amountMin)) return false
+    if (filters.amountMax && t.amount > parseFloat(filters.amountMax)) return false
+    if (filters.searchTerm) {
+      const search = filters.searchTerm.toLowerCase()
+      if (!t.description.toLowerCase().includes(search) && 
+          !t.category.toLowerCase().includes(search)) return false
+    }
+    return true
+  })
+
+  const categories = [...new Set(transactions.map(t => t.category))]
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -152,6 +181,17 @@ export default function Dashboard() {
                 </svg>
                 <span className="hidden sm:inline text-sm font-medium">Asistente IA</span>
               </button>
+
+              <Link
+                href="/protected/finances"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
+                title="Productos Financieros"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                <span className="hidden sm:inline text-sm font-medium">Finanzas</span>
+              </Link>
 
               <ThemeToggle />
               
@@ -209,8 +249,25 @@ export default function Dashboard() {
           balance={balance} 
         />
 
+        {/* AI Suggestions */}
+        <div className="mt-8">
+          <AISuggestions 
+            transactions={transactions} 
+            onOpenChat={() => setShowAIAssistant(true)} 
+          />
+        </div>
+
+        {/* Filters */}
+        <div className="mt-6">
+          <TransactionFilters
+            filters={filters}
+            onFiltersChange={setFilters}
+            categories={categories}
+          />
+        </div>
+
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
           {/* Charts Section */}
           <div className="lg:col-span-2 space-y-6">
             <MonthlyChart transactions={transactions} />
@@ -224,7 +281,7 @@ export default function Dashboard() {
           {/* Recent Transactions */}
           <div className="lg:col-span-1">
             <TransactionList 
-              transactions={transactions.slice(0, 10)} 
+              transactions={filteredTransactions.slice(0, 15)} 
               onDelete={handleDeleteTransaction}
             />
           </div>
