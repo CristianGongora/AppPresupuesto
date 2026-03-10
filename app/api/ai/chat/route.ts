@@ -35,11 +35,25 @@ IMPORTANTE:
 
 export async function POST(req: Request) {
   try {
-    const { messages, financialContext }: { messages: UIMessage[]; financialContext: string } = await req.json()
+    const body = await req.json()
+    console.log('[v0] AI Chat received body keys:', Object.keys(body))
+    
+    const { messages, financialContext } = body as { messages: UIMessage[]; financialContext?: string }
+    
+    if (!messages || !Array.isArray(messages)) {
+      console.log('[v0] No messages received or invalid format')
+      return new Response(
+        JSON.stringify({ error: 'No se recibieron mensajes' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
+    console.log('[v0] Processing', messages.length, 'messages')
+    console.log('[v0] Financial context present:', !!financialContext)
 
     const result = streamText({
       model: 'openai/gpt-4o-mini',
-      system: `${SYSTEM_PROMPT}\n\n${financialContext}`,
+      system: `${SYSTEM_PROMPT}\n\n${financialContext || 'No hay contexto financiero disponible.'}`,
       messages: await convertToModelMessages(messages),
     })
 
@@ -47,7 +61,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('[v0] Error in AI chat:', error)
     return new Response(
-      JSON.stringify({ error: 'Error al procesar la solicitud de IA' }),
+      JSON.stringify({ error: 'Error al procesar la solicitud de IA', details: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
   }

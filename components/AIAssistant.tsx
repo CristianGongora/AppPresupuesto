@@ -46,12 +46,24 @@ Resumen financiero del usuario:
 - Últimas 5 transacciones: ${transactions.slice(0, 5).map(t => `${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)} (${t.category})`).join(', ') || 'Sin transacciones'}
 `
 
-  const { messages, sendMessage, status } = useChat({
+  const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ 
       api: '/api/ai/chat',
-      body: { financialContext }
+      prepareSendMessagesRequest: ({ messages }) => ({
+        body: { 
+          messages,
+          financialContext 
+        }
+      })
     }),
   })
+
+  // Debug: log errors
+  useEffect(() => {
+    if (error) {
+      console.log('[v0] AI Chat error:', error)
+    }
+  }, [error])
 
   const isLoading = status === 'streaming' || status === 'submitted'
 
