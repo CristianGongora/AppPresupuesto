@@ -221,9 +221,6 @@ export default function Dashboard() {
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
               Hola, {user?.displayName}
             </h1>
-            <p className="text-muted-foreground mt-1">
-              {user?.email}
-            </p>
           </div>
           <button
             onClick={() => setShowTransactionModal(true)}
