@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
         .from('user_profiles')
         .insert([{
           id: user.id,
-          display_name: user.user_metadata?.display_name || user.email?.split('@')[0] || 'Usuario',
+          full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario',
           currency: 'USD',
           timezone: 'America/New_York',
           language: 'es',
@@ -42,7 +42,10 @@ export async function GET(request: NextRequest) {
         )
       }
 
-      return NextResponse.json(newProfile)
+      return NextResponse.json({
+        ...newProfile,
+        display_name: newProfile.full_name,
+      })
     }
 
     if (selectError) {
@@ -52,9 +55,12 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    return NextResponse.json(profile)
+    return NextResponse.json({
+      ...profile,
+      display_name: profile.full_name,
+    })
   } catch (error) {
-    console.error('Error en GET profile:', error)
+    console.error('[v0] Error en GET profile:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -67,6 +73,8 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
     const { data: { user }, error: userError } = await supabase.auth.getUser()
 
+    console.log('[v0] POST /api/profile - User:', user?.id, userError)
+
     if (userError || !user) {
       return NextResponse.json(
         { error: 'No autorizado' },
@@ -76,12 +84,13 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const { display_name, currency, timezone, language } = body
+    console.log('[v0] Profile update data:', { display_name, currency, timezone, language })
 
     // Primero intenta actualizar
     const { data: updated, error: updateError } = await supabase
       .from('user_profiles')
       .update({
-        display_name,
+        full_name: display_name,
         currency,
         timezone,
         language,
@@ -91,14 +100,17 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
+    console.log('[v0] Update result:', { updated, updateError })
+
     if (updateError) {
+      console.log('[v0] Update error code:', updateError.code, updateError.message)
       // Si falla porque no existe, inserta
       if (updateError.code === 'PGRST116') {
         const { data: inserted, error: insertError } = await supabase
           .from('user_profiles')
           .insert([{
             id: user.id,
-            display_name,
+            full_name: display_name,
             currency,
             timezone,
             language,
@@ -107,7 +119,10 @@ export async function POST(request: NextRequest) {
           .select()
           .single()
 
+        console.log('[v0] Insert result:', { inserted, insertError })
+
         if (insertError) {
+          console.log('[v0] Insert error:', insertError.message)
           return NextResponse.json(
             { error: 'Error al guardar el perfil', details: insertError.message },
             { status: 500 }
@@ -117,6 +132,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(inserted)
       }
 
+      console.log('[v0] Returning update error:', updateError.message)
       return NextResponse.json(
         { error: 'Error al actualizar el perfil', details: updateError.message },
         { status: 500 }
@@ -125,9 +141,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(updated)
   } catch (error) {
-    console.error('Error en POST profile:', error)
+    console.error('[v0] Error en POST profile:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Error interno del servidor', details: error instanceof Error ? error.message : 'Desconocido' },
       { status: 500 }
     )
   }
