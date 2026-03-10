@@ -112,26 +112,24 @@ export default function FinancesPage() {
         {/* Tabs */}
         <div className="mt-8 border-b border-border">
           <nav className="flex gap-1 -mb-px overflow-x-auto">
-            {tabs.map((tab) => (
-          <button
-            onClick={() => setActiveTab('accounts')}
-            className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'accounts' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            {t('finances.bankAccounts')}
-          </button>
-          <button
-            onClick={() => setActiveTab('credits')}
-            className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'credits' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            {t('finances.credits')}
-          </button>
-          <button
-            onClick={() => setActiveTab('cdts')}
-            className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'cdts' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            {t('finances.cdts')}
-          </button>
-            ))}
+            <button
+              onClick={() => setActiveTab('accounts')}
+              className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'accounts' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              {t('finances.bankAccounts')}
+            </button>
+            <button
+              onClick={() => setActiveTab('credits')}
+              className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'credits' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              {t('finances.credits')}
+            </button>
+            <button
+              onClick={() => setActiveTab('cdts')}
+              className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'cdts' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              {t('finances.cdts')}
+            </button>
           </nav>
         </div>
 
