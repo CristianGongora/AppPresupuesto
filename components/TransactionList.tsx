@@ -23,24 +23,8 @@ export function TransactionList({ transactions, onDelete }: TransactionListProps
   const [deleting, setDeleting] = useState<string | null>(null)
   const { t } = useLanguage()
 
-  const handleDelete = async (id: string) {
-    if (window.confirm(t('transactions.delete') + '?')) {
-      setDeleting(id)
-      await onDelete(id)
-      setDeleting(null)
-    }
-  }
-
-interface TransactionListProps {
-  transactions: Transaction[]
-  onDelete: (id: string) => void
-}
-
-export function TransactionList({ transactions, onDelete }: TransactionListProps) {
-  const [deleting, setDeleting] = useState<string | null>(null)
-
   const handleDelete = async (id: string) => {
-    if (window.confirm('¿Eliminar esta transacción?')) {
+    if (window.confirm(t('transactions.delete') + '?')) {
       setDeleting(id)
       await onDelete(id)
       setDeleting(null)
@@ -57,8 +41,8 @@ export function TransactionList({ transactions, onDelete }: TransactionListProps
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <p className="text-muted-foreground">No hay transacciones aún</p>
-          <p className="text-sm text-muted-foreground mt-1">Agrega tu primera transacción</p>
+          <p className="text-muted-foreground">{t('transactions.noTransactions')}</p>
+          <p className="text-sm text-muted-foreground mt-1">{t('transactions.addFirst')}</p>
         </div>
       </div>
     )
@@ -113,7 +97,7 @@ export function TransactionList({ transactions, onDelete }: TransactionListProps
                 onClick={() => handleDelete(transaction.id)}
                 disabled={deleting === transaction.id}
                 className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-destructive/10 text-destructive transition-all disabled:opacity-50"
-                title="Eliminar"
+                title={t('transactions.delete')}
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

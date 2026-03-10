@@ -66,6 +66,8 @@ const translations = {
       selectCategory: 'Selecciona una categoría',
       expenseCategories: 'Alimentación, Transporte, Vivienda, Entretenimiento, Salud, Educación, Ropa, Servicios, Otros',
       incomeCategories: 'Salario, Freelance, Inversiones, Ventas, Regalos, Reembolsos, Otros',
+      noTransactions: 'No hay transacciones aún',
+      addFirst: 'Agrega tu primera transacción',
     },
     ai: {
       askMe: 'Pregúntame sobre tus finanzas',
@@ -162,6 +164,8 @@ const translations = {
       selectCategory: 'Select a category',
       expenseCategories: 'Food, Transport, Housing, Entertainment, Health, Education, Clothing, Services, Other',
       incomeCategories: 'Salary, Freelance, Investments, Sales, Gifts, Refunds, Other',
+      noTransactions: 'No transactions yet',
+      addFirst: 'Add your first transaction',
     },
     ai: {
       askMe: 'Ask me about your finances',
@@ -258,6 +262,8 @@ const translations = {
       selectCategory: 'Selecione uma categoria',
       expenseCategories: 'Alimentação, Transporte, Habitação, Entretenimento, Saúde, Educação, Roupas, Serviços, Outro',
       incomeCategories: 'Salário, Freelance, Investimentos, Vendas, Presentes, Reembolsos, Outro',
+      noTransactions: 'Nenhuma transação ainda',
+      addFirst: 'Adicione sua primeira transação',
     },
     ai: {
       askMe: 'Pergunte-me sobre suas finanças',
