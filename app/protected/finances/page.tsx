@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { useLanguage } from '@/components/LanguageProvider'
 import { BankAccountsSection } from '@/components/finances/BankAccountsSection'
 import { CreditsSection } from '@/components/finances/CreditsSection'
 import { CDTsSection } from '@/components/finances/CDTsSection'
@@ -15,6 +16,7 @@ type Tab = 'accounts' | 'credits' | 'cdts'
 export default function FinancesPage() {
   const supabase = createClient()
   const router = useRouter()
+  const { t } = useLanguage()
   const [user, setUser] = useState<{ id: string; displayName: string } | null>(null)
   const [activeTab, setActiveTab] = useState<Tab>('accounts')
   const [loading, setLoading] = useState(true)
@@ -47,7 +49,7 @@ export default function FinancesPage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-muted-foreground">Cargando...</p>
+          <p className="text-muted-foreground">{t('auth.loading')}</p>
         </div>
       </div>
     )
@@ -111,18 +113,24 @@ export default function FinancesPage() {
         <div className="mt-8 border-b border-border">
           <nav className="flex gap-1 -mb-px overflow-x-auto">
             {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                }`}
-              >
-                {tab.icon}
-                {tab.label}
-              </button>
+          <button
+            onClick={() => setActiveTab('accounts')}
+            className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'accounts' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            {t('finances.bankAccounts')}
+          </button>
+          <button
+            onClick={() => setActiveTab('credits')}
+            className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'credits' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            {t('finances.credits')}
+          </button>
+          <button
+            onClick={() => setActiveTab('cdts')}
+            className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'cdts' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            {t('finances.cdts')}
+          </button>
             ))}
           </nav>
         </div>

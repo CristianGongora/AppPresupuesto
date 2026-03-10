@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { useLanguage } from '@/components/LanguageProvider'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+  const { t } = useLanguage()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,7 +33,7 @@ export default function LoginPage() {
         router.push('/protected')
       }
     } catch (err) {
-      setError('Error al iniciar sesión. Por favor intenta de nuevo.')
+      setError(t('auth.loginError'))
     } finally {
       setLoading(false)
     }
@@ -59,10 +61,10 @@ export default function LoginPage() {
           <div className="glass rounded-2xl p-8 animate-fade-in">
             <div className="text-center mb-8">
               <h1 className="text-2xl font-bold text-foreground mb-2">
-                Bienvenido de vuelta
+                {t('auth.welcomeBack')}
               </h1>
               <p className="text-muted-foreground">
-                Inicia sesión para acceder a tu dashboard
+                {t('auth.loginDescription')}
               </p>
             </div>
 
@@ -75,7 +77,7 @@ export default function LoginPage() {
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-                  Email
+                  {t('auth.email')}
                 </label>
                 <input
                   id="email"
@@ -90,7 +92,7 @@ export default function LoginPage() {
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
-                  Contraseña
+                  {t('auth.password')}
                 </label>
                 <input
                   id="password"

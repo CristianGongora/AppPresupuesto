@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Transaction } from '@/lib/utils'
+import { Transaction, formatCurrency } from '@/lib/utils'
+import { useLanguage } from './LanguageProvider'
 
 interface AISuggestionsProps {
   transactions: Transaction[]
@@ -19,6 +20,7 @@ interface Suggestion {
 export function AISuggestions({ transactions, onOpenChat }: AISuggestionsProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [loading, setLoading] = useState(true)
+  const { t } = useLanguage()
 
   useEffect(() => {
     analyzeTransactions()
@@ -31,9 +33,9 @@ export function AISuggestions({ transactions, onOpenChat }: AISuggestionsProps) 
       setSuggestions([{
         id: 'welcome',
         type: 'tip',
-        title: 'Comienza a registrar',
-        message: 'Agrega tus primeras transacciones para recibir consejos personalizados sobre tu salud financiera.',
-        action: 'Agregar transaccion'
+        title: t('suggestions.startRecording'),
+        message: t('suggestions.addTransactionsMessage'),
+        action: t('suggestions.addTransaction')
       }])
       setLoading(false)
       return
@@ -75,9 +77,9 @@ export function AISuggestions({ transactions, onOpenChat }: AISuggestionsProps) 
       newSuggestions.push({
         id: 'high-spending',
         type: 'warning',
-        title: 'Gastos elevados',
-        message: `Estas gastando el ${Math.round((monthlyExpenses / monthlyIncome) * 100)}% de tus ingresos este mes. Considera revisar tus gastos no esenciales.`,
-        action: 'Ver detalle'
+        title: t('suggestions.highExpenses'),
+        message: t('suggestions.highExpensesMessage').replace('{percentage}', Math.round((monthlyExpenses / monthlyIncome) * 100).toString()),
+        action: t('suggestions.seeDetail')
       })
     } else if (monthlyIncome > 0 && monthlyExpenses < monthlyIncome * 0.5) {
       newSuggestions.push({
