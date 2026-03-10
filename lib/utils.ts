@@ -32,3 +32,14 @@ export const CATEGORIES = {
 } as const
 
 export type CategoryKey = keyof typeof CATEGORIES
+
+export interface Transaction {
+  id: string
+  user_id: string
+  type: 'income' | 'expense'
+  amount: number
+  description: string
+  category: string
+  date: string
+  created_at: string
+}

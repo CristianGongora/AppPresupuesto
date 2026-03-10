@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { Transaction } from '@/app/protected/page'
+import type { Transaction } from '@/lib/utils'
 
 interface TransactionModalProps {
   onClose: () => void

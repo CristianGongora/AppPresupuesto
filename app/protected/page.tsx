@@ -14,15 +14,9 @@ import { AIAssistant } from '@/components/AIAssistant'
 import { AISuggestions } from '@/components/AISuggestions'
 import { TransactionFilters, FilterState } from '@/components/TransactionFilters'
 
-export interface Transaction {
-  id: string
-  type: 'income' | 'expense'
-  amount: number
-  description: string
-  category: string
-  date: string
-  created_at: string
-}
+// Re-export Transaction from utils for backward compatibility
+export type { Transaction } from '@/lib/utils'
+import type { Transaction } from '@/lib/utils'
 
 export default function Dashboard() {
   const router = useRouter()
